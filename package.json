@@ -8,7 +8,7 @@
   },
   "scripts": {
     "test": "mocha --max-old-space-size=4000",
-    "bench-sha256-x15": "node bench_sha256_x15/index.js"
+    "bench": "node index.js"
   },
   "keywords": [
     "pedersen",
