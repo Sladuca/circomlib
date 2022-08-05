@@ -169,9 +169,21 @@ async function main() {
 		fs.mkdirSync(`${__dirname}/output`);
 	}
 
-	await compile();
+	// only compile if it hasn't been done yet
+	if (!fs.existsSync(`${__dirname}/output/sha256_2_x15.r1cs`)) {
+		await compile();
+	} else {
+		console.log("circuit already compiled - skipping...");
+	}
+
 	await generate_witness();
-	// await setup();
+
+	// only do the trusted setup if it hasn't been done yet
+	if (!fs.existsSync(`${__dirname}/output/verification_key.json`)) {
+		await setup();
+	} else {
+		console.log("trusted setup already done - skipping...");
+	}
 
 	const times = [];
 	let i = 0;
