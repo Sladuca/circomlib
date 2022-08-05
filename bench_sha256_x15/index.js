@@ -48,77 +48,17 @@ async function generateWitness() {
 	console.log(`Witness generation took ${endTime - startTime} milliseconds`)
 }
 
-function setup() {
-	console.log("performing trusted setup...")
-	
-	return new Promise((res, rej) => {
-		// don't time the first two parts because they're not circuit-specific
-		exec(`snarkjs powersoftau new bn128 19 ${__dirname}/output/pot19_0000.ptau -v`, (err, stdout, stderr) => {	
-			if (err) {
-				rej(err);
-			} else {
-				res();
-			}
-		})
-	}).then((res) => {
-		return new Promise((res, rej) => {
-			exec(`snarkjs powersoftau contribute ${__dirname}/output/pot19_0000.ptau ${__dirname}/output/pot19_0001.ptau --name=\"First contribution\" -v -e=\"${setupFakeEntropy0}\"`, (err, stdout, stderr) => {
-				if (err) {
-					console.error(stderr);
-					rej(err);
-				} else {
-					res();
-				}
-			})
-		})
-	}).then((res) => {
-		const startTime = performance.now();
-		return new Promise((res, rej) => {
-			exec(`snarkjs powersoftau prepare phase2 ${__dirname}/output/pot19_0001.ptau ${__dirname}/output/pot19_final.ptau -v`, (err, stdout, stderr) => {
-				if (err) {
-					rej(err);
-				} else {
-					res(startTime);
-				}
-			})
-		})
-	}).then((res) => {
-		const startTime = res;
-		return new Promise((res, rej) => {
-			exec(`snarkjs groth16 setup ${__dirname}/output/sha256_2_x15.r1cs ${__dirname}/output/pot19_final.ptau ${__dirname}/output/sha256_2_x15_0000.zkey`, (err, stdout, stderr) => {
-				if (err) {
-					rej(err);
-				} else {
-					res(startTime);
-				}
-			})
-		})
-	}).then((res) => {
-		const startTime = res;
-		return new Promise((res, rej) => {
-			exec(`snarkjs zkey contribute ${__dirname}/output/sha256_2_x15_0000.zkey ${__dirname}/output/sha256_2_x15_0001.zkey --name=\"sha2_benchmark_${setupContributionName}\" -v -e=\"${setupFakeEntropy1}\"`, (err, stdout, stderr) => {
-				if (err) {
-					rej(err);
-				} else {
-					res(startTime);
-				}
-			})
-		})
-	}).then((res) => {
-		const startTime = res;
-		return new Promise((res, rej) => {
-			console.log(5);
-			exec(`snarkjs zkey export verificationkey ${__dirname}/output/sha256_2_x15_0001.zkey ${__dirname}/output/verification_key.json`, (err, stdout, stderr) => {
-				const stopTime = performance.now();
-				console.log(`setup took ${stopTime - startTime} milliseconds`);
-				if (err) {
-					rej(err);
-				} else {
-					res();
-				}
-			})
-		})
-	})
+async function setup() {
+	console.log("\x1b[32mPerforming trusted setup... \x1b[0m")
+	await asyncExec(`snarkjs powersoftau new bn128 19 ${__dirname}/.output/pot19_0000.ptau -v`)
+	await asyncExec(`snarkjs powersoftau contribute ${__dirname}/.output/pot19_0000.ptau ${__dirname}/.output/pot19_0001.ptau --name=\"First contribution\" -v -e=\"${setupFakeEntropy0}\"`)
+	const startTime = performance.now()
+	await asyncExec(`snarkjs powersoftau prepare phase2 ${__dirname}/.output/pot19_0001.ptau ${__dirname}/.output/pot19_final.ptau -v`)
+	await asyncExec(`snarkjs groth16 setup ${__dirname}/.output/sha256_2_x15.r1cs ${__dirname}/.output/pot19_final.ptau ${__dirname}/.output/sha256_2_x15_0000.zkey`)
+	await asyncExec(`snarkjs zkey contribute ${__dirname}/.output/sha256_2_x15_0000.zkey ${__dirname}/.output/sha256_2_x15_0001.zkey --name=\"sha2_benchmark_${setupContributionName}\" -v -e=\"${setupFakeEntropy1}\"`)
+	await asyncExec(`snarkjs zkey export verificationkey ${__dirname}/.output/sha256_2_x15_0001.zkey ${__dirname}/.output/verification_key.json`)
+	const stopTime = performance.now()
+	console.log(`Setup took ${stopTime - startTime} milliseconds`)
 }
 
 function prove() {
