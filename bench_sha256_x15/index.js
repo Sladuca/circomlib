@@ -61,24 +61,14 @@ async function setup() {
 	console.log(`Setup took ${stopTime - startTime} milliseconds`)
 }
 
-function prove() {
-	return new Promise((res, rej) => {
-		console.log("proving circuit...")
-		const startTime = performance.now();
-		exec(`snarkjs groth16 prove ${__dirname}/output/sha256_2_x15_0001.zkey ${__dirname}/output/witness.wtns ${__dirname}/output/proof.json ${__dirname}/output/public.json`, (err, stdout, stderr) => {
-			const stopTime = performance.now();
-			console.log(`proving took ${stopTime - startTime} milliseconds.`);
-			if (err) {
-				console.log(`prover stderr: \n${stderr}`);
-				rej(err);
-			} else {
-				console.log(`prover stdout: \n${stdout}`);
-				res(stopTime - startTime);
+async function prove(i = 0) {
+	console.log(`\x1b[32mProving circuit... (${i}/10) \x1b[0m`)
+	const startTime = performance.now()
+	await asyncExec(`snarkjs groth16 prove ${__dirname}/.output/sha256_2_x15_0001.zkey ${__dirname}/.output/witness.wtns ${__dirname}/.output/proof.json ${__dirname}/.output/public.json`)
+	const stopTime = performance.now()
+	console.log(`Proving took ${stopTime - startTime} milliseconds.`)
+	return stopTime - startTime
 			}
-		})
-	})
-}
-
 
 async function main() {
 	console.log("input:", input);
@@ -103,10 +93,9 @@ async function main() {
 		console.log("trusted setup already done - skipping...");
 	}
 
-	const times = [];
-	let i = 0;
-	for (i; i < 10; i++) {
-		times.push(await prove());
+	const times = []
+	for (let i = 0; i < 10;) {
+		times.push(await prove(++i))
 	}
 
 	const sum = times.reduce((a, b) => a + b, 0);
