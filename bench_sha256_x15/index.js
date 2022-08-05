@@ -1,3 +1,4 @@
+const { spawn } = require('child_process')
 const path = require("path");
 const fs = require("fs");
 const exec = require('child_process').exec;
@@ -20,13 +21,23 @@ const setupContributionName = uuidv4();
 const setupFakeEntropy0 = uuidv4();
 const setupFakeEntropy1 = uuidv4();
 
-function sleep(milliseconds) {
-	const date = Date.now();
-	let currentDate = null;
-	do {
-		currentDate = Date.now();
-	} while (currentDate - date < milliseconds);
-}
+const asyncExec = command => new Promise((resolve, reject) => {
+	let stdout = '';
+	let stderr = '';
+	const child = spawn('sh', ['-c', command]);
+	child.stdout.on('data', data => {
+		const output = data.toString();
+		console.log(output);
+		stdout += output;
+	});
+	child.stderr.on('data', data => {
+		const output = data.toString();
+		console.error(output);
+		stderr += output;
+	});
+	child.on('error', reject);
+	child.on('exit', () => resolve([stdout, stderr]));
+})
 
 function compile() {
 	return new Promise((res, rej) => {
