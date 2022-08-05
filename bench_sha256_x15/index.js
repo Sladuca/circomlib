@@ -39,26 +39,13 @@ async function compile() {
 	console.log(`Compilation took ${endTime - startTime} milliseconds`)
 }
 
-function generate_witness() {
-	console.log('generating witness...')
-	fs.writeFileSync(`${__dirname}/output/input.json`, JSON.stringify(input));
-	return new Promise((res, rej) => {
-		const startTime = performance.now();
-		exec(`node ${__dirname}/output/sha256_2_x15_js/generate_witness.js ${__dirname}/output/sha256_2_x15_js/sha256_2_x15.wasm ${__dirname}/output/input.json ${__dirname}/output/witness.wtns`, (err, stdout, stderr) => {
-			const endTime = performance.now();
-			console.log(`witness generation took ${endTime - startTime} milliseconds`);
-			if (err) {
-				rej(err);
-			} else {
-				console.log("witness generation stdout:\n", stdout);
-				if (stderr) {
-					console.log("witness generation stderr:\n", stderr);
-				}
-				sleep(1000);
-				res();
-			}
-		})
-	})
+async function generateWitness() {
+	console.log('\x1b[32mGenerating witness... \x1b[0m')
+	fs.writeFileSync(`${__dirname}/.output/input.json`, JSON.stringify(input))
+	const startTime = performance.now()
+	await asyncExec(`node ${__dirname}/.output/sha256_2_x15_js/generate_witness.js ${__dirname}/.output/sha256_2_x15_js/sha256_2_x15.wasm ${__dirname}/.output/input.json ${__dirname}/.output/witness.wtns`)
+	const endTime = performance.now()
+	console.log(`Witness generation took ${endTime - startTime} milliseconds`)
 }
 
 function setup() {
