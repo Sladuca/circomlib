@@ -1,25 +1,17 @@
+const fs = require("fs")
 const { spawn } = require('child_process')
-const path = require("path");
-const fs = require("fs");
-const exec = require('child_process').exec;
-const Scalar = require("ffjavascript").Scalar;
-const { v4: uuidv4 } = require('uuid');
-const { performance } = require('perf_hooks');
+const { Scalar } = require("ffjavascript")
+const { v4: uuidv4 } = require('uuid')
+const { performance } = require('perf_hooks')
 
-exports.p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617");
-
-const tester = require("circom_tester").wasm;
-
-// const printSignal = require("./helpers/printsignal");
+exports.p = Scalar.fromString("21888242871839275222246405745257275088548364400416034343698204186575808495617")
 
 const input = {
 	"a": Array.from(Array(15).keys()).map(i => i.toString()),
 	"b": Array.from(Array(15).keys()).map(i => (i + 15).toString())
 }
 
-const setupContributionName = uuidv4();
-const setupFakeEntropy0 = uuidv4();
-const setupFakeEntropy1 = uuidv4();
+const [setupContributionName, setupFakeEntropy0, setupFakeEntropy1] = [uuidv4(), uuidv4(), uuidv4()]
 
 const asyncExec = command => new Promise((resolve, reject) => {
 	let stdout = '';
