@@ -171,7 +171,7 @@ async function main() {
 
 	await compile();
 	await generate_witness();
-	await setup();
+	// await setup();
 
 	const times = [];
 	let i = 0;
