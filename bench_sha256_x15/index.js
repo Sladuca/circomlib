@@ -68,29 +68,29 @@ async function prove(i = 0) {
 	const stopTime = performance.now()
 	console.log(`Proving took ${stopTime - startTime} milliseconds.`)
 	return stopTime - startTime
-			}
+}
 
 async function main() {
-	console.log("input:", input);
+	console.log("Input: ", input)
 
-	if (!fs.existsSync(`${__dirname}/output`)) {
-		fs.mkdirSync(`${__dirname}/output`);
+	if (!fs.existsSync(`${__dirname}/.output`)) {
+		fs.mkdirSync(`${__dirname}/.output`)
 	}
 
 	// only compile if it hasn't been done yet
-	if (!fs.existsSync(`${__dirname}/output/sha256_2_x15.r1cs`)) {
+	if (!fs.existsSync(`${__dirname}/.output/sha256_2_x15.r1cs`)) {
 		await compile();
 	} else {
-		console.log("circuit already compiled - skipping...");
+		console.log("Cached compiled circuit found - skipping...")
 	}
 
-	await generate_witness();
+	await generateWitness();
 
 	// only do the trusted setup if it hasn't been done yet
-	if (!fs.existsSync(`${__dirname}/output/verification_key.json`)) {
-		await setup();
+	if (!fs.existsSync(`${__dirname}/.output/verification_key.json`)) {
+		await setup()
 	} else {
-		console.log("trusted setup already done - skipping...");
+		console.log("Cached trusted setup found - skipping...")
 	}
 
 	const times = []
@@ -98,9 +98,9 @@ async function main() {
 		times.push(await prove(++i))
 	}
 
-	const sum = times.reduce((a, b) => a + b, 0);
-	const avg = sum / times.length;
-	console.log(`average proving time: ${avg} milliseconds`);
+	const sum = times.reduce((a, b) => a + b, 0)
+	const avg = sum / times.length
+	console.log(`Average proving time: ${avg} milliseconds`)
 }
 
 main();
