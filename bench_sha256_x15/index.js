@@ -31,24 +31,12 @@ const asyncExec = command => new Promise((resolve, reject) => {
 	child.on('exit', () => resolve([stdout, stderr]));
 })
 
-function compile() {
-	return new Promise((res, rej) => {
-		console.log('compiling circuit...')
-		const startTime = performance.now();
-		exec(`circom ${__dirname}/../circuits/sha256/sha256_2_x15.circom --r1cs --wasm --sym --c -o \"${__dirname}/output\"`, (err, stdout, stderr) => {
-			const endTime = performance.now();
-			console.log(`compilation took ${endTime - startTime} milliseconds`);
-			if (err) {
-				rej(err);
-			} else {
-				console.log("circuit compilation stdout:\n", stdout);
-				if (stderr) {
-					console.log("circuit compilation stderr:\n", stderr);
-				}
-				res();
-			}
-		})
-	})
+async function compile() {
+	console.log('\x1b[32m Compiling circuit... \x1b[0m')
+	const startTime = performance.now()
+	await asyncExec(`circom ${__dirname}/../circuits/sha256/sha256_2_x15.circom --r1cs --wasm -o \"${__dirname}/.output\"`)
+	const endTime = performance.now()
+	console.log(`Compilation took ${endTime - startTime} milliseconds`)
 }
 
 function generate_witness() {
