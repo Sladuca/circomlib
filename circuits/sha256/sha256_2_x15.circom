@@ -18,7 +18,7 @@
 */
 pragma circom 2.0.0;
 
-include "sha256_2.circom";
+include "sha256_2_nopad.circom";
 
 template Main() {
     signal input a[15];
